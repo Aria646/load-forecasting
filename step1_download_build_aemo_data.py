@@ -50,11 +50,11 @@ for year in YEARS:
     for month in MONTHS:
         for table in TABLES:
             total_attempts += 1
-            
+
             print(f"[{year}-{month:02d}] | {table:20s}...", end=" ", flush=True)
-            
+
             success = download_table(year, month, table)
-            
+
             if success:
                 success_count += 1
                 print("SUCCESS")
@@ -62,9 +62,9 @@ for year in YEARS:
             else:
                 print("FAILED")
                 download_log.append({"year": year, "month": month, "table": table, "status": "failed"})
-            
+
             time.sleep(0.5)
-        
+
         print()
 
 print("\n" + "=" * 70)
@@ -73,7 +73,7 @@ print("=" * 70)
 
 # ==================== Check successfully downloaded files ====================
 print("\nList of successfully downloaded files:")
-successful_files = list(CACHE_DIR.glob("*.csv"))
+successful_files = list(CACHE_DIR.glob("*.csv")) + list(CACHE_DIR.glob("*.CSV"))
 for f in sorted(successful_files):
     size_mb = f.stat().st_size / 1024 / 1024
     print(f"  [OK] {f.name} ({size_mb:.1f} MB)")
@@ -83,14 +83,17 @@ print(f"\nTotal {len(successful_files)} CSV files")
 # ==================== Merge function ====================
 def load_and_merge_table(table_name):
     """Load all monthly CSV files for a given table and merge them"""
-    csv_files = list(CACHE_DIR.glob(f"*{table_name}*.csv"))
-    
+    csv_files = (
+        list(CACHE_DIR.glob(f"*{table_name}*.csv"))
+        + list(CACHE_DIR.glob(f"*{table_name}*.CSV"))
+    )
+
     if not csv_files:
         print(f"Warning: No CSV files found for {table_name}")
         return None
-    
+
     print(f"\nLoading {table_name}: Found {len(csv_files)} files")
-    
+
     df_list = []
     for file in tqdm(csv_files, desc=f"Loading {table_name}"):
         try:
@@ -98,10 +101,10 @@ def load_and_merge_table(table_name):
             df_list.append(df)
         except Exception as e:
             print(f"  Warning: Failed to load: {file.name} - {e}")
-    
+
     if not df_list:
         return None
-    
+
     df_merged = pd.concat(df_list, ignore_index=True)
     print(f"  [OK] {table_name} merge complete: {len(df_merged):,} records")
     return df_merged
@@ -116,7 +119,7 @@ price_df = load_and_merge_table("DISPATCHPRICE")
 
 if region_df is None or price_df is None:
     print("ERROR: Data loading failed, please check if download is complete")
-    exit()
+    raise SystemExit(1)
 
 # ==================== Data cleaning ====================
 print("\nData cleaning...")
@@ -137,9 +140,9 @@ print(f"  Price data: {len(price_df):,} records")
 # ==================== Merge ====================
 print("\nMerging demand and price data...")
 merged_df = pd.merge(
-    region_df, 
-    price_df, 
-    on=['SETTLEMENTDATE', 'REGIONID'], 
+    region_df,
+    price_df,
+    on=['SETTLEMENTDATE', 'REGIONID'],
     how='inner'
 )
 print(f"  [OK] Merge complete: {len(merged_df):,} records")
