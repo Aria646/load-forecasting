@@ -1,0 +1,48 @@
+name: Build AEMO load data and EDA
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Step 1 - download and build AEMO data
+        run: python step1_download_build_aemo_data.py
+
+      - name: Step 2 - generate EDA outputs
+        run: python step2_eda_aemo_load_data.py
+
+      - name: Keep only requested project outputs and commit them
+        shell: bash
+        run: |
+          rm -rf aemo_data
+          rm -f download_log.csv
+          rm -f .github/workflows/bootstrap.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "Generate AEMO load data and EDA outputs"
+            git push
+          fi

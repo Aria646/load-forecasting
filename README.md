@@ -1,118 +1,94 @@
-# Electricity Load Forecasting
+# Load Forecasting Using Machine Learning
 
-Machine-learning research project for short-term electricity load forecasting.
+## Project Overview
 
-## Project overview
+This project investigates machine learning-based load forecasting models using Australian electricity demand data from AEMO (Australian Energy Market Operator). The focus is on short-term forecasting (1 hour to 1 week ahead).
 
-This repository contains the code, notebooks, figures and experiment outputs for an electricity load forecasting research project. The project investigates whether historical electricity demand, calendar/time variables and weather-related features can improve forecasting accuracy while keeping the workflow reproducible.
+## Research Question
 
-> **Status:** Design Artefact / early implementation stage. The exact electricity field, weather station, sampling interval, forecasting horizon and final model set will be confirmed as the project progresses.
+How accurately can machine learning and deep learning models forecast short-term electricity demand using historical load and weather data?
 
-## Research question
+## Data Source
 
-**How effectively can machine-learning models forecast electricity load using historical demand, temporal features and weather-related variables?**
+- **Source**: AEMO (Australian Energy Market Operator)
+- **Tables**: DISPATCHREGIONSUM (load), DISPATCHPRICE (price)
+- **Period**: 2021-2023
+- **Regions**: NSW1, QLD1, SA1, TAS1, VIC1
+- **Resolution**: Hourly (aggregated from 5/30-minute data)
 
-Supporting questions:
-- Which features contribute most to forecast performance?
-- How do different machine-learning models compare under the same time-series split?
-- How well does the selected model generalise to later unseen time periods and seasons?
+## Files
 
-## Data sources
+### step1_download_build_aemo_data.py
+Downloads AEMO data and prepares hourly dataset.
 
-The project is planned to use:
-- public historical electricity demand/load data;
-- public weather observations matched to the electricity time series;
-- derived calendar variables such as hour, weekday, weekend and holiday indicators.
+**What it does:**
+- Downloads load and price data for 2021-2023
+- Merges data by settlement date and region
+- Aggregates to hourly resolution
 
-The exact electricity region/field, weather station, sampling interval and source URLs will be recorded after verification.
+**Output:** `aemo_merged_hourly_2021_2023.csv`
 
-Large or licence-restricted raw datasets are **not** committed to this repository. Place local raw files under `data/raw/`.
+### step2_eda_aemo_load_data.py
+Performs exploratory data analysis on the merged dataset.
 
-## Project structure
+**Generated plots:**
+- Load time series (2021-2023)
+- 24-hour average load curve
+- Average load by day of week
+- Average load by month and season
+- Load distribution by region
+- Missing data distribution
 
-```text
-load-forecasting/
-├── data/
-│   ├── raw/
-│   └── processed/
-├── notebooks/
-│   ├── 01_data_acquisition.ipynb
-│   ├── 02_data_cleaning.ipynb
-│   ├── 03_eda.ipynb
-│   ├── 04_feature_engineering.ipynb
-│   ├── 05_baseline_model.ipynb
-│   ├── 06_model_training.ipynb
-│   ├── 07_model_evaluation.ipynb
-│   ├── 08_shap_analysis.ipynb
-│   └── 09_temporal_validation.ipynb
-├── src/
-│   ├── preprocessing.py
-│   ├── feature_engineering.py
-│   ├── models.py
-│   ├── evaluation.py
-│   └── visualisation.py
-├── figures/
-├── results/
-├── .gitignore
-├── README.md
-└── requirements.txt
-```
+**Output:** `results/aemo_eda_combined.png`, `results/eda_summary_stats.csv`
 
-## Planned workflow
-
-1. **Data acquisition** — obtain public electricity load and weather datasets.
-2. **Data cleaning** — handle missing values, detect abnormal values and align timestamps.
-3. **Exploratory Data Analysis (EDA)** — inspect load curves, seasonal patterns and correlations.
-4. **Feature engineering** — create lag features such as `t-1`, `t-24`, `t-168`, calendar variables, weather features and rolling statistics.
-5. **Time-series split** — split chronologically into training (70%), validation (15%) and test (15%) sets; do not randomly shuffle.
-6. **Scaling** — fit any scaler on the training set only, then transform validation/test data.
-7. **Model training** — train candidate models and tune hyperparameters using the validation set.
-8. **Evaluation** — evaluate final models on the test set using MAE, RMSE and sMAPE, plus prediction-vs-actual and error plots.
-9. **Explainability** — use SHAP or suitable feature-importance methods to examine influential predictors.
-10. **Temporal generalisation** — test performance on later unseen periods/seasons, for example training on earlier years and predicting a later year.
-
-## Planned models
-
-Initial candidates include:
-- Persistence / naive baseline
-- Linear Regression
-- Random Forest Regressor
-- XGBoost Regressor
-- LightGBM Regressor (if retained after initial experiments)
-
-The final model set will be based on literature review, data suitability and supervisor feedback.
-
-## Evaluation metrics
-
-- **MAE** — Mean Absolute Error
-- **RMSE** — Root Mean Squared Error
-- **sMAPE** — Symmetric Mean Absolute Percentage Error
-
-## Reproducibility rules
-
-- Split time-series data chronologically.
-- Fit scalers and preprocessing parameters using training data only.
-- Keep raw data unchanged; cleaned/merged outputs go to `data/processed/`.
-- Save generated figures to `figures/` and experiment summaries to `results/`.
-- Fix random seeds where relevant.
-
-## How to run
-
-Create and activate a Python environment, then install dependencies:
+## Installation
 
 ```bash
+# Create virtual environment (optional)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-Run the notebooks in numerical order from `01_` to `09_` as implementation progresses.
+## Usage
 
-## Current Design Artefact evidence
+### Step 1: Download Data
+```bash
+python step1_download_build_aemo_data.py
+```
 
-At this stage, this repository demonstrates:
-- a reproducible project structure;
-- separation between raw and processed data;
-- a documented forecasting workflow;
-- planned model comparison and evaluation metrics;
-- placeholders for EDA, model results and explainability outputs.
+### Step 2: Exploratory Data Analysis
+```bash
+python step2_eda_aemo_load_data.py
+```
 
-As implementation progresses, genuine data-quality summaries, EDA figures, baseline results and model-comparison outputs will be added.
+## Methodology
+
+1. Literature review on load forecasting techniques
+2. Data acquisition and preprocessing
+3. Exploratory data analysis and feature engineering
+4. Model development (machine learning and deep learning)
+5. Training and validation
+6. Performance evaluation and comparison
+
+## Project Objectives
+
+1. Conduct literature review on load forecasting techniques
+2. Analyse electricity demand and weather datasets
+3. Investigate effects of weather, temporal factors, and historical patterns
+4. Compare forecasting models
+5. Identify key variables influencing accuracy
+6. Assess suitability for smart grid applications
+
+## Expected Outcomes
+
+- Machine learning-based load forecasting framework
+- Comparative evaluation of forecasting algorithms
+- Insights into demand-influencing factors
+- Recommendations for smart grid implementation
+
+## License
+
+Academic research purposes only.
