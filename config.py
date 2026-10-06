@@ -1,0 +1,6 @@
+# Time range
+YEARS = [2021, 2022, 2023]
+# YEARS = [2015, 2016, 2017, 2018, 2019]
+
+# Options: 'NSW1', 'QLD1', 'SA1', 'TAS1', 'VIC1'
+SELECT_REGION = "NSW1"
