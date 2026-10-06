@@ -15,7 +15,7 @@ How accurately can machine learning and deep learning models forecast short-term
 - **Weather API**: Weather.com API
 - **Period**: Configurable via `config.py` (default: 2015-2019)
 - **Regions**: NSW1, QLD1, SA1, TAS1, VIC1
-- **Default Training Region**: Configurable via `config.py` (default: QLD1)
+- **Default Training Region**: Configurable via `config.py` (default: NSW1)
 - **Resolution**: Hourly (aggregated from 5-minute AEMO data)
 
 ## Configuration
@@ -27,11 +27,11 @@ All configurable parameters are defined in `config.py`:
 YEARS = [2021, 2022, 2023]
 
 # Default region for model training and EDA analysis
-SELECT_REGION = "QLD1"  # Options: 'NSW1', 'QLD1', 'SA1', 'TAS1', 'VIC1'
+SELECT_REGION = "NSW1"  # Options: 'NSW1', 'QLD1', 'SA1', 'TAS1', 'VIC1'
 ```
 
 - **YEARS**: Specifies which years of data to download from AEMO and weather API, and which years to use for training/testing (all years except the last are used for training, the last year is used for testing)
-- **SELECT_REGION**: Specifies the default region used for EDA detailed analysis and model training (default QLD1)
+- **SELECT_REGION**: Specifies the default region used for EDA detailed analysis and model training (default NSW1)
 
 ## Project Structure
 
