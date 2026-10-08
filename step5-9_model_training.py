@@ -858,7 +858,7 @@ def run_experiment(config: Config):
 
         if len(horizons) > 0:
             horizons += ', '
-        horizons += horizon + 'h'
+        horizons += str(horizon) + 'h'
 
         # Tree models: use tree-split data (1D -> 2D)
         y_train_tree_2d = create_horizon_targets(y_train_tree, horizon)
