@@ -957,7 +957,7 @@ def plot_results(config: Config, results_df: pd.DataFrame, test_df: pd.DataFrame
 
         ax.bar(x - 1.5*width, h_df['MAE'], width, label='MAE')
         ax.bar(x - 0.5*width, h_df['RMSE'], width, label='RMSE')
-        ax.bar(x + 0.5*width, h_df['MAPE'] * 0.1, width, label='MAPE*0.1')
+        ax.bar(x + 0.5*width, h_df['MAPE'], width, label='MAPE')
         ax.bar(x + 1.5*width, h_df['R2'], width, label='R2%')
 
         ax.set_xlabel('Model')

@@ -390,10 +390,10 @@ print("\nCreating Figure 5: Weather-Load Correlations...")
 
 fig5, axes = plt.subplots(2, 2, figsize=(16, 12))
 
-# Plot 1: Correlation heatmap (all regions)
+# Plot 1: Correlation heatmap
 ax = axes[0, 0]
-features = ['TOTALDEMAND', 'TEMPERATURE', 'HUMIDITY', 'PRESSURE', 
-            'WIND_SPEED', 'PRECIPITATION', 'HOUR_OF_DAY', 'MONTH']
+features = ['TOTALDEMAND', 'TEMPERATURE', 'HUMIDITY', 'PRESSURE',
+            'WIND_SPEED', 'HOUR_OF_DAY', 'MONTH']
 corr_matrix = df[features].corr(method='spearman')
 sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='RdBu_r',
             center=0, vmin=-1, vmax=1, square=True, linewidths=0.5, ax=ax)
@@ -401,27 +401,37 @@ ax.set_title('(a) All Variables Correlation (Spearman)', fontsize=12, fontweight
 
 # Plot 2: Correlation by region
 ax = axes[0, 1]
-weather_cols = ['TEMPERATURE', 'HUMIDITY', 'PRESSURE', 'WIND_SPEED', 'PRECIPITATION']
+weather_cols = ['TEMPERATURE', 'HUMIDITY', 'PRESSURE', 'WIND_SPEED']
+regions_order = ['NSW1', 'QLD1', 'SA1', 'TAS1', 'VIC1']
 corr_by_region = {}
-for region in df['REGIONID'].unique():
+for region in regions_order:
     region_df = df[df['REGIONID'] == region]
-    corr_by_region[region] = [pearsonr(region_df['TOTALDEMAND'], region_df[col])[0] 
-                              for col in weather_cols]
+    corrs = []
+    for col in weather_cols:
+        valid = region_df[['TOTALDEMAND', col]].dropna()
+        if len(valid) > 100:
+            c = pearsonr(valid['TOTALDEMAND'], valid[col])[0]
+            corrs.append(c if not np.isnan(c) else 0)
+        else:
+            corrs.append(0)
+    corr_by_region[region] = corrs
 
 corr_df = pd.DataFrame(corr_by_region, index=weather_cols).T
-corr_df.plot(kind='bar', ax=ax)
+corr_df.plot(kind='bar', ax=ax, width=0.75)
 ax.set_title('(b) Weather-Load Correlation by Region', fontsize=12, fontweight='bold')
 ax.set_xlabel('Region')
 ax.set_ylabel('Pearson Correlation')
 ax.axhline(0, color='black', linestyle='-', linewidth=0.5)
-ax.legend(title='Weather Variable')
+ax.legend(title='Weather Variable', fontsize=9)
 ax.grid(True, alpha=0.3)
 ax.tick_params(axis='x', rotation=0)
+for container in ax.containers:
+    ax.bar_label(container, fmt='%.2f', fontsize=7, padding=2)
 
 # Plot 3: Load vs Humidity
 ax = axes[1, 0]
 sample = df.sample(min(10000, len(df)))
-scatter = ax.scatter(sample['HUMIDITY'], sample['TOTALDEMAND'], 
+scatter = ax.scatter(sample['HUMIDITY'], sample['TOTALDEMAND'],
                      c=sample['TEMPERATURE'], cmap='coolwarm', alpha=0.5, s=10)
 ax.set_xlabel('Humidity (%)')
 ax.set_ylabel('Load (MW)')
@@ -432,7 +442,7 @@ ax.grid(True, alpha=0.3)
 # Plot 4: Load vs Wind Speed
 ax = axes[1, 1]
 sample = df.sample(min(10000, len(df)))
-scatter = ax.scatter(sample['WIND_SPEED'], sample['TOTALDEMAND'], 
+scatter = ax.scatter(sample['WIND_SPEED'], sample['TOTALDEMAND'],
                      c=sample['TEMPERATURE'], cmap='viridis', alpha=0.5, s=10)
 ax.set_xlabel('Wind Speed (m/s)')
 ax.set_ylabel('Load (MW)')
